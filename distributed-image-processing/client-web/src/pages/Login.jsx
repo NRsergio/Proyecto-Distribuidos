@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import { login } from '../services/soapClient.js'
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
@@ -14,11 +13,17 @@ export default function Login() {
     e.preventDefault()
     setLoading(true); setError('')
     try {
-      const userData = await login(form.email, form.password)
-      authLogin(userData)
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Credenciales invalidas')
+      authLogin(data)
       navigate('/')
-    } catch {
-      setError('Credenciales invalidas. Intente de nuevo.')
+    } catch (e) {
+      setError(e.message)
     } finally {
       setLoading(false)
     }
@@ -27,18 +32,18 @@ export default function Login() {
   return (
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.card}>
-        <h2 style={styles.title}>Iniciar Sesion</h2>
-        <p style={styles.subtitle}>Sistema de Procesamiento de Imagenes</p>
+        <h2 style={styles.title}>Iniciar Sesión</h2>
+        <p style={styles.subtitle}>Sistema de Procesamiento de Imágenes</p>
         {error && <div style={styles.error}>{error}</div>}
         <input style={styles.input} type="email" placeholder="Email"
           value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
-        <input style={styles.input} type="password" placeholder="Contrasena"
+        <input style={styles.input} type="password" placeholder="Contraseña"
           value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
         <button style={styles.btn} type="submit" disabled={loading}>
           {loading ? 'Ingresando...' : 'Ingresar'}
         </button>
-        <p style={{textAlign:'center', marginTop: 12}}>
-          ¿No tienes cuenta? <Link to="/register">Registrate</Link>
+        <p style={{textAlign:'center', marginTop:12}}>
+          ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
         </p>
       </form>
     </div>

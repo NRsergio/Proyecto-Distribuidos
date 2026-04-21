@@ -21,16 +21,21 @@ public class ImageProcessingServiceImpl implements ImageProcessingServiceSoap {
     private final BatchService batchService;
 
     @Override
+    public LoginResponse register(RegisterRequest request) {
+        log.info("SOAP register: {}", request.getEmail());
+        return authService.register(request);
+    }
+
+    @Override
     public LoginResponse login(LoginRequest request) {
-        log.info("SOAP login request: {}", request.getEmail());
+        log.info("SOAP login: {}", request.getEmail());
         return authService.login(request);
     }
 
     @Override
     public EnviarLoteResponse enviarLote(EnviarLoteRequest request) {
         Long idUsuario = authService.validarToken(request.getToken());
-        log.info("SOAP enviarLote: usuario {}, {} imagenes",
-            idUsuario, request.getImagenes().size());
+        log.info("SOAP enviarLote: usuario={}, imagenes={}", idUsuario, request.getImagenes().size());
         return batchService.procesarEnvioLote(idUsuario, request);
     }
 

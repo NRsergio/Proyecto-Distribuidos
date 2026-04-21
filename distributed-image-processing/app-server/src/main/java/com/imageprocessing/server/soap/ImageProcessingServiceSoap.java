@@ -9,6 +9,9 @@ import jakarta.jws.WebService;
             targetNamespace = "http://imageprocessing.com/soap")
 public interface ImageProcessingServiceSoap {
 
+    @WebMethod(operationName = "register")
+    LoginResponse register(@WebParam(name = "request") RegisterRequest request);
+
     @WebMethod(operationName = "login")
     LoginResponse login(@WebParam(name = "request") LoginRequest request);
 
