@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option java_package = "com.imageprocessing.grpc";
+option java_outer_classname = "NodeServiceProto";
+option java_multiple_files = true;
+
+package nodeservice;
+
+// ─── Servicio expuesto por cada nodo trabajador ───────────────────────────
+service NodeService {
+    // El servidor envia un trabajo de imagen al nodo
+    rpc ProcessImage (ImageJobRequest) returns (ImageJobResponse);
+
+    // Heartbeat para verificar que el nodo sigue activo
+    rpc Heartbeat (HeartbeatRequest) returns (HeartbeatResponse);
+}
+
+// ─── Mensajes ─────────────────────────────────────────────────────────────
+message ImageJobRequest {
+    int64 id_imagen       = 1;
+    int64 id_lote         = 2;
+    string ruta_original  = 3;
+    string formato_salida = 4;
+    repeated TransformacionConfig transformaciones = 5;
+    string callback_url   = 6;   // URL del servidor para hacer callback
+}
+
+message TransformacionConfig {
+    string tipo         = 1;    // ESCALA_GRISES, REDIMENSIONAR, ROTAR, etc.
+    int32  orden        = 2;
+    string parametros   = 3;    // JSON con parametros especificos
+}
+
+message ImageJobResponse {
+    bool   aceptado     = 1;
+    string mensaje      = 2;
+}
+
+message HeartbeatRequest {
+    string nodo_id = 1;
+}
+
+message HeartbeatResponse {
+    bool   activo      = 1;
+    int32  carga_actual = 2;   // Numero de imagenes en proceso
+}

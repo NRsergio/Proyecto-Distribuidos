@@ -1,0 +1,13 @@
+server:
+  port: 8090     # Puerto REST del nodo (para health/admin)
+
+node:
+  id: "nodo-01"
+  grpc-port: 9090
+  app-server-url: "http://localhost:8080"
+  storage-path: "/tmp/imageprocessing"
+  thread-pool-size: 4     # Hilos para procesamiento paralelo interno
+
+logging:
+  level:
+    com.imageprocessing: DEBUG

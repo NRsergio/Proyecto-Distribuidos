@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: app-server
+  datasource:
+    url: jdbc:postgresql://localhost:5432/imageprocessing_db
+    username: imageuser
+    password: imagepass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# Configuracion SOAP (Apache CXF)
+cxf:
+  path: /ws
+  servlet.init:
+    service-list-path: /services
+
+# JWT
+app:
+  jwt:
+    secret: "CAMBIAR_POR_SECRETO_SEGURO_EN_PRODUCCION_256_BITS"
+    expiration-ms: 86400000   # 24 horas
+
+  # URL base de este servidor para callbacks de los nodos
+  callback-base-url: "http://localhost:8080"
+
+  # Intervalo del heartbeat hacia nodos (ms)
+  heartbeat-interval-ms: 30000
+
+logging:
+  level:
+    com.imageprocessing: DEBUG
+    org.apache.cxf: WARN
