@@ -1,0 +1,43 @@
+# Maven
+target/
+build/
+dist/
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+.mvn/timing.properties
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.iml
+out/
+.classpath
+.project
+.settings/
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Application
+uploads/
+logs/
+*.log
+
+# Java
+*.class
+*.jar
+*.war
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# OS
+.DS_Store
+Thumbs.db

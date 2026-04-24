@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: app-server
+  
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5416}/${DB_NAME:imageprocessing_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  security:
+    user:
+      name: admin
+      password: admin
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForImageProcessingDistributedSystem123456789}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+rmi:
+  registry:
+    port: 1099
+  server:
+    port: 1099
+  service:
+    name: ImageProcessingWorker
+
+file:
+  upload:
+    dir: ./uploads
+  max:
+    size: 104857600
+
+backend:
+  api:
+    url: http://localhost:3001/api
+
+logging:
+  level:
+    root: INFO
+    com.imageprocessing: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

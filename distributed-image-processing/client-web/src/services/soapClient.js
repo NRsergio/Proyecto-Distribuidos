@@ -1,88 +1,107 @@
 /**
- * Cliente SOAP para comunicarse con el servidor de aplicacion.
- * Construye el envelope XML y parsea la respuesta.
+ * Cliente REST para comunicarse con el Backend Express.
+ * El backend actúa como intermediario hacia el App-Server JAVA.
+ * 
+ * Flujo: Cliente Web (React) → Backend Express REST → App-Server JAVA SOAP
  */
-const SOAP_URL = '/ws/ImageProcessingService'
-const NS = 'http://imageprocessing.com/soap'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
-async function callSoap(operation, bodyXml) {
-  const envelope = `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                  xmlns:ns="${NS}">
-  <soapenv:Header/>
-  <soapenv:Body>
-    <ns:${operation}>
-      ${bodyXml}
-    </ns:${operation}>
-  </soapenv:Body>
-</soapenv:Envelope>`
+/**
+ * Helper para requests HTTP al backend
+ */
+async function callAPI(endpoint, method = 'GET', body = null, token = null) {
+  const headers = {
+    'Content-Type': 'application/json'
+  }
 
-  const response = await fetch(SOAP_URL, {
+  // Agregar token si está disponible
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const options = {
+    method,
+    headers
+  }
+
+  if (body) {
+    options.body = JSON.stringify(body)
+  }
+
+  const response = await fetch(`${API_URL}${endpoint}`, options)
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || `HTTP error: ${response.status}`)
+  }
+
+  return data.data
+}
+
+/**
+ * Login: authentication con email y password
+ */
+export async function login(email, password) {
+  const resultado = await callAPI('/auth/login', 'POST', { email, password })
+  return resultado
+}
+
+/**
+ * Register: crear nuevo usuario
+ */
+export async function register(email, password, nombre) {
+  const resultado = await callAPI('/auth/register', 'POST', { email, password, nombre })
+  return resultado
+}
+
+/**
+ * Upload: subir archivos de imagen
+ */
+export async function uploadImagenes(token, files) {
+  const formData = new FormData()
+
+  // Agregar archivos al FormData
+  for (const file of files) {
+    formData.append('imagenes', file)
+  }
+
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  }
+
+  // No enviar Content-Type, dejar que el navegador lo establezca automáticamente
+  const response = await fetch(`${API_URL}/upload`, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/xml;charset=UTF-8', 'SOAPAction': '' },
-    body: envelope
+    headers,
+    body: formData
   })
 
-  if (!response.ok) throw new Error(`SOAP error: ${response.status}`)
-  const text = await response.text()
-  const parser = new DOMParser()
-  return parser.parseFromString(text, 'text/xml')
-}
+  const data = await response.json()
 
-export async function login(email, password) {
-  const xml = callSoap('login', `
-    <request>
-      <email>${email}</email>
-      <password>${password}</password>
-    </request>`)
-  const doc = await xml
-  const token = doc.querySelector('token')?.textContent
-  const idUsuario = doc.querySelector('idUsuario')?.textContent
-  const nombre = doc.querySelector('nombre')?.textContent
-  if (!token) throw new Error('Credenciales invalidas')
-  return { token, idUsuario, nombre, email }
-}
-
-export async function enviarLote(token, imagenes) {
-  const imagenesXml = imagenes.map(img => `
-    <imagenes>
-      <nombreArchivo>${img.nombreArchivo}</nombreArchivo>
-      <rutaOriginal>${img.rutaOriginal}</rutaOriginal>
-      ${img.transformaciones.map(t => `
-      <transformaciones>
-        <tipo>${t.tipo}</tipo>
-        <orden>${t.orden}</orden>
-        <parametros>${t.parametros || '{}'}</parametros>
-      </transformaciones>`).join('')}
-    </imagenes>`).join('')
-
-  const doc = await callSoap('enviarLote', `
-    <request>
-      <token>${token}</token>
-      ${imagenesXml}
-    </request>`)
-
-  const idLote = doc.querySelector('idLote')?.textContent
-  return { idLote }
-}
-
-export async function consultarProgreso(token, idLote) {
-  const doc = await callSoap('consultarProgreso', `
-    <idLote>${idLote}</idLote>
-    <token>${token}</token>`)
-
-  return {
-    idLote,
-    estadoLote: doc.querySelector('estadoLote')?.textContent,
-    porcentajeProgreso: parseFloat(doc.querySelector('porcentajeProgreso')?.textContent || '0'),
-    totalImagenes: parseInt(doc.querySelector('totalImagenes')?.textContent || '0'),
-    imagenesCompletadas: parseInt(doc.querySelector('imagenesCompletadas')?.textContent || '0'),
-    imagenesError: parseInt(doc.querySelector('imagenesError')?.textContent || '0'),
-    imagenes: Array.from(doc.querySelectorAll('imagenes')).map(el => ({
-      idImagen: el.querySelector('idImagen')?.textContent,
-      nombreArchivo: el.querySelector('nombreArchivo')?.textContent,
-      estado: el.querySelector('estado')?.textContent,
-      rutaResultado: el.querySelector('rutaResultado')?.textContent
-    }))
+  if (!response.ok) {
+    throw new Error(data.error || `HTTP error: ${response.status}`)
   }
+
+  return data.data
+}
+
+/**
+ * Enviar lote: procesa imagenes con transformaciones
+ */
+export async function enviarLote(token, imagenes) {
+  const resultado = await callAPI(
+    '/batch/enviar',
+    'POST',
+    { token, imagenes },
+    token
+  )
+  return resultado
+}
+
+/**
+ * Consultar progreso: obtiene estado de un lote
+ */
+export async function consultarProgreso(token, idLote) {
+  const resultado = await callAPI(`/batch/progreso/${idLote}`, 'GET', null, token)
+  return resultado
 }

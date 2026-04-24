@@ -9,23 +9,36 @@ CREATE DATABASE imageprocessing_db;
 -- EXTENSION para UUID (opcional)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ─── TABLA: usuario ───────────────────────────────────────────────────────────
-CREATE TABLE usuario (
+-- ─── TABLA: usuarios (SCHEMA AUTH) ────────────────────────────────────────────
+CREATE SCHEMA IF NOT EXISTS auth;
+
+CREATE TABLE auth.usuarios (
     id_usuario      BIGSERIAL PRIMARY KEY,
-    nombre          VARCHAR(100)    NOT NULL,
-    email           VARCHAR(120)    NOT NULL UNIQUE,
+    username        VARCHAR(100)    NOT NULL UNIQUE,
     password_hash   VARCHAR(255)    NOT NULL,
+    email           VARCHAR(120)    NOT NULL UNIQUE,
+    fecha_registro  TIMESTAMP       NOT NULL DEFAULT NOW(),
     rol             VARCHAR(50)     NOT NULL DEFAULT 'USER'
 );
 
--- ─── TABLA: sesion ────────────────────────────────────────────────────────────
-CREATE TABLE sesion (
-    id_sesion       BIGSERIAL PRIMARY KEY,
-    id_usuario      BIGINT          NOT NULL REFERENCES usuario(id_usuario),
-    token           VARCHAR(255)    NOT NULL,
-    fecha_creacion  TIMESTAMP       NOT NULL DEFAULT NOW(),
-    fecha_expiracion TIMESTAMP      NOT NULL,
-    estado          VARCHAR(30)     NOT NULL DEFAULT 'ACTIVO'
+-- ─── TABLA: sesiones (SCHEMA AUTH) ────────────────────────────────────────────
+CREATE TABLE auth.sesiones (
+    id_sesion           BIGSERIAL PRIMARY KEY,
+    id_usuario          BIGINT          NOT NULL REFERENCES auth.usuarios(id_usuario) ON DELETE CASCADE,
+    token               VARCHAR(500)    NOT NULL UNIQUE,
+    fecha_expiracion    TIMESTAMP       NOT NULL,
+    dispositivo_info    VARCHAR(255),
+    fecha_creacion      TIMESTAMP       NOT NULL DEFAULT NOW()
+);
+
+-- Tabla de usuario para compatibilidad con procesamiento de lotes
+CREATE TABLE usuario (
+    id_usuario      BIGSERIAL PRIMARY KEY,
+    username        VARCHAR(100)    NOT NULL UNIQUE,
+    email           VARCHAR(120)    NOT NULL UNIQUE,
+    password_hash   VARCHAR(255)    NOT NULL,
+    rol             VARCHAR(50)     NOT NULL DEFAULT 'USER',
+    fecha_registro  TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 -- ─── TABLA: nodo_trabajador ───────────────────────────────────────────────────
