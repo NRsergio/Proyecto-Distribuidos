@@ -1,36 +1,62 @@
 package com.imageprocessing.server.model.entity;
 
-import com.imageprocessing.server.model.enums.EstadoLote;
 import jakarta.persistence.*;
-import lombok.*;
-import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.List;
 
+/**
+ * Entidad SolicitudLote - Schema: public
+ * Representa una solicitud de procesamiento de lote de imágenes
+ */
 @Entity
-@Table(name = "solicitud_lote")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "solicitud_lote", schema = "public", indexes = {
+    @Index(name = "idx_solicitud_lote_usuario", columnList = "id_usuario"),
+    @Index(name = "idx_solicitud_lote_estado", columnList = "estado")
+})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SolicitudLote {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_lote")
     private Long idLote;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
-
-    @Column(name = "fecha_recepcion", nullable = false)
-    private LocalDateTime fechaRecepcion;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false, length = 30)
-    private EstadoLote estado;
-
-    @Column(name = "porcentaje_progreso", precision = 5, scale = 2)
-    private BigDecimal porcentajeProgreso;
-
-    @OneToMany(mappedBy = "lote", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ImagenSolicitud> imagenes;
+    
+    @Column(name = "id_usuario", nullable = false)
+    private Long idUsuario;
+    
+    @Column(name = "titulo", nullable = false)
+    private String titulo;
+    
+    @Column(name = "descripcion")
+    private String descripcion;
+    
+    @Column(name = "estado", nullable = false)
+    private String estado; // PENDIENTE, PROCESANDO, COMPLETADO, ERROR
+    
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion;
+    
+    @Column(name = "fecha_inicio")
+    private LocalDateTime fechaInicio;
+    
+    @Column(name = "fecha_fin")
+    private LocalDateTime fechaFin;
+    
+    @Column(name = "progreso", nullable = false)
+    @Builder.Default
+    private Integer progreso = 0;
+    
+    @Column(name = "cantidad_imagenes", nullable = false)
+    @Builder.Default
+    private Integer cantidadImagenes = 0;
+    
+    @Column(name = "cantidad_procesadas", nullable = false)
+    @Builder.Default
+    private Integer cantidadProcesadas = 0;
 }

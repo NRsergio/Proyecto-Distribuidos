@@ -1,32 +1,39 @@
 package com.imageprocessing.server.model.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
-import java.util.List;
 
+/**
+ * Entidad Usuario - Schema: auth
+ * Representa un usuario del sistema
+ */
 @Entity
-@Table(name = "usuario")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "usuarios", schema = "auth")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Usuario {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
     private Long idUsuario;
-
-    @Column(name = "nombre", nullable = false, length = 100)
-    private String nombre;
-
-    @Column(name = "email", nullable = false, unique = true, length = 120)
+    
+    @Column(name = "username", unique = true, nullable = false)
+    private String username;
+    
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
-
-    @Column(name = "password_hash", nullable = false, length = 255)
+    
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
-
-    @Column(name = "rol", nullable = false, length = 50)
-    private String rol;
-
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
-    private List<SolicitudLote> lotes;
+    
+    @Column(name = "fecha_registro", nullable = false)
+    private LocalDateTime fechaRegistro;
 }
