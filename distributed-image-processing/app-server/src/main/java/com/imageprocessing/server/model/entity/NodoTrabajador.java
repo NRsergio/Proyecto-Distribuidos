@@ -52,5 +52,6 @@ public class NodoTrabajador {
     private Long memoriaUtilizada;
     
     @Column(name = "trabajos_completados", nullable = false)
+    @Builder.Default
     private Integer trabajosCompletados = 0;
 }

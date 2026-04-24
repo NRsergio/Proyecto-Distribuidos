@@ -49,11 +49,14 @@ public class SolicitudLote {
     private LocalDateTime fechaFin;
     
     @Column(name = "progreso", nullable = false)
+    @Builder.Default
     private Integer progreso = 0;
     
     @Column(name = "cantidad_imagenes", nullable = false)
+    @Builder.Default
     private Integer cantidadImagenes = 0;
     
     @Column(name = "cantidad_procesadas", nullable = false)
+    @Builder.Default
     private Integer cantidadProcesadas = 0;
 }

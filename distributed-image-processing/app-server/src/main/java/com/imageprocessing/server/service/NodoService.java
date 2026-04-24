@@ -1,7 +1,6 @@
 package com.imageprocessing.server.service;
 
 import com.imageprocessing.server.model.entity.NodoTrabajador;
-import com.imageprocessing.server.repository.LogTrabajoRepository;
 import com.imageprocessing.server.repository.NodoTrabajadorRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ public class NodoService {
     private static final Logger logger = LoggerFactory.getLogger(NodoService.class);
     
     private final NodoTrabajadorRepository nodoRepository;
-    private final LogTrabajoRepository logTrabajoRepository;
     
     /**
      * Registra un nuevo nodo trabajador

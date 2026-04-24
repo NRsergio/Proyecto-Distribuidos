@@ -13,6 +13,6 @@ import java.util.List;
 public interface LogTrabajoRepository extends JpaRepository<LogTrabajo, Long> {
     List<LogTrabajo> findByIdLote(Long idLote);
     List<LogTrabajo> findByIdNodo(Long idNodo);
-    List<LogTrabajo> findByIdLoteAndidImagen(Long idLote, Long idImagen);
+    List<LogTrabajo> findByIdLoteAndIdImagen(Long idLote, Long idImagen);
     Integer countByIdNodo(Long idNodo);
 }
